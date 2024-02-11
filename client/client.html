@@ -3,9 +3,63 @@
 <head>
   <title>Our simple HTTP server</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
-  
-  <script>
+  <script type="module">
+    const handleAPIResponse = async (response) => {
+      const responseContentType = response.headers.get('Content-Type');
+      const contentContainer = document.querySelector('#content');
 
+      switch(response.status) {
+        case 200: 
+          contentContainer.innerHTML = `<h1>Success</h1>`;
+          break;
+        case 400: 
+          contentContainer.innerHTML = `<h1>Bad Request</h1>`;
+          break;
+        case 401: 
+          contentContainer.innerHTML = `<h1>Unauthorized</h1>`;
+          break;
+        case 403: 
+          contentContainer.innerHTML = `<h1>Forbidden</h1>`;
+          break;
+        case 500: 
+          contentContainer.innerHTML = `<h1>Internal Server Error</h1>`;
+          break;
+        case 501: 
+          contentContainer.innerHTML = `<h1>Not Implemented</h1>`;
+          break;
+
+        case 404:
+          contentContainer.innerHTML = `<h1>Resource Not Found</h1>`;
+          break;
+      }
+
+      if(responseContentType === 'application/json') 
+      {
+        const responseOutputJSON = await response.text();
+        console.log(responseOutputJSON);
+
+        contentContainer.innerHTML += `<p>Message: ${JSON.parse(responseOutputJSON).message}</p>`;
+      } 
+      else if(responseContentType === 'text/xml') {
+        const responseOutputXML = await response.text();        
+        const parsedResponse = new DOMParser().parseFromString(responseOutputXML, 'text/xml');
+        console.log(responseOutputXML);
+
+        contentContainer.innerHTML += `<p>Message: ${parsedResponse.querySelector('message').textContent}</p>`;
+      }
+    };
+
+    const requestButton = document.querySelector('#send');
+    const requestTypeSelector = document.querySelector('#page');
+    const ContentTypeSelector = document.querySelector('#type');
+      
+    const sendRequest = async (e) => 
+    {
+      let apiFetchResponse = await fetch( requestTypeSelector.value, { headers: { 'Accept': ContentTypeSelector.value }} );
+      handleAPIResponse(apiFetchResponse);
+    }
+      
+    requestButton.addEventListener('click', sendRequest);
   </script>
 </head>
 <body>
