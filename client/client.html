@@ -7,7 +7,7 @@
     const handleAPIResponse = async (response) => {
       const responseContentType = response.headers.get('Content-Type');
       const contentContainer = document.querySelector('#content');
-
+      
       switch(response.status) {
         case 200: 
           contentContainer.innerHTML = `<h1>Success</h1>`;
